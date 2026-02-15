@@ -220,7 +220,7 @@ The principal advantage of the rule-based approach is not superior accuracy but 
 ## References
 
 1. Draminski, M. et al. "R.ROSETTA: an interpretable machine learning framework." *BMC Bioinformatics* 22, 110 (2021).
-2. Komorowski, J. "Developing RBMs -- Guidelines." Knowledge-based Systems in Bioinformatics, Winter 2023.
+2. Komorowski, J. "Developing RBMs - Guidelines." Knowledge-based Systems in Bioinformatics, Winter 2023.
 3. Yang, W. et al. "Genomics of Drug Sensitivity in Cancer (GDSC): a resource for therapeutic biomarker discovery in cancer cells." *Nucleic Acids Research* 41, D955-D961 (2013).
 4. Zoppoli, G. et al. "Putative DNA/RNA helicase Schlafen-11 (SLFN11) sensitizes cancer cells to DNA-damaging agents." *PNAS* 109, 15030-15035 (2012).
 5. Fink, D. et al. "The role of DNA mismatch repair in platinum drug resistance." *Cancer Research* 56, 4881-4886 (1996).
@@ -239,3 +239,4 @@ This project is licensed under the Apache License 2.0. See [`LICENSE`](LICENSE) 
 <p align="center">
   <i>Analysis conducted using R.ROSETTA  |  Data sourced from GDSC2  |  Pipeline based on Komorowski RBM Guidelines</i>
 </p>
+
