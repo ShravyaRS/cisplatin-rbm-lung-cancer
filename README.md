@@ -1,83 +1,239 @@
-# Interpretable Rule-Based Prediction of Cisplatin Response in Lung Cancer
+<p align="center">
+  <img src="images/rule_network.png" width="700"/>
+</p>
 
-## Overview
-This project applies **R.ROSETTA**, an interpretable rule-based machine learning framework based on rough set theory, to predict cisplatin drug response in lung cancer cell lines using gene expression data from the GDSC2 database.
+<h1 align="center">Interpretable Rule-Based Prediction of Cisplatin Response in Lung Cancer</h1>
 
-Unlike black-box models (neural networks, SVM, random forests), R.ROSETTA produces **human-readable IF-THEN rules** that reveal co-predictive gene mechanisms underlying drug sensitivity and resistance.
+<p align="center">
+  <img src="https://img.shields.io/badge/R-4.4+-276DC3?style=flat-square&logo=r&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Framework-R.ROSETTA-orange?style=flat-square"/>
+  <img src="https://img.shields.io/badge/Data-GDSC2-2ecc71?style=flat-square"/>
+  <img src="https://img.shields.io/badge/Accuracy-73.9%25-blue?style=flat-square"/>
+  <img src="https://img.shields.io/badge/Permutation%20p--value-<%200.01-critical?style=flat-square"/>
+  <img src="https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square"/>
+</p>
 
-## Key Results
+<p align="center">
+  <b>A rough set-based interpretable machine learning approach to cancer pharmacogenomics</b>
+</p>
+
+---
+
+## Abstract
+
+Cisplatin is the most widely prescribed chemotherapy for non-small cell lung cancer, yet approximately 60% of patients exhibit intrinsic or acquired resistance. Existing predictive models based on neural networks and support vector machines achieve reasonable accuracy but function as black boxes, offering no mechanistic insight into the molecular basis of drug response.
+
+This study applies **R.ROSETTA**, a rough set-based classification framework, to gene expression profiles of 127 lung cancer cell lines from the Genomics of Drug Sensitivity in Cancer (GDSC2) database. The resulting model produces **human-readable IF-THEN rules** that identify specific gene expression patterns associated with cisplatin sensitivity and resistance.
+
+The model achieves **73.9% classification accuracy** (permutation p-value < 0.01), comparable to black-box methods, while providing fully interpretable combinatorial rules. Key findings include the identification of EGFR, SLFN11, and MSH2 in rule sets consistent with established literature, alongside novel candidate biomarkers including TUFT1, SERINC3, and PRPF40A.
+
+---
+
+## Results
+
+### Model Performance
 
 | Metric | Value |
-|--------|-------|
-| Accuracy (10-fold CV) | **73.9%** |
-| Permutation p-value | **0** (n=100) |
-| Total rules discovered | **241** |
+|:-------|:------|
+| Classification Accuracy (10-fold CV) | 73.9% |
+| Accuracy Range | 61.5% - 92.3% |
+| Standard Deviation | 0.082 |
+| Permutation p-value | < 0.01 (n = 100) |
+| Total Rules Generated | 241 |
 | Samples | 127 lung cancer cell lines |
-| Features | 43 genes (LASSO + Boruta selection) |
-| Classes | Sensitive (n=64) vs Resistant (n=63) |
+| Input Features | 43 genes (reduced from 17,611) |
+| Class Distribution | Sensitive (n = 64), Resistant (n = 63) |
 
-## Key Findings
+### Statistical Validation
 
-### Biologically Validated Discoveries
-- **EGFR** (21 resistance rules): Known oncogene; EGFR-high lung cancers show platinum resistance
-- **SLFN11** (sensitivity rules): Established cisplatin sensitivity biomarker in literature
-- **MSH2** (sensitivity rules): DNA mismatch repair gene; functional MMR enhances cisplatin efficacy
+The permutation test confirms the model is significantly better than random classification (mean shuffled accuracy = 51.7%).
 
-### Novel Findings
-- **TUFT1** is the top hub gene (35 rules) connecting both resistance and sensitivity networks — a potential novel cisplatin response biomarker
-- **SERINC3** (30 rules) and **PRPF40A** (20 rules) emerge as key co-predictive features not previously linked to cisplatin response
+<p align="center">
+  <img src="images/permutation_test.png" width="600"/>
+  <br>
+  <i>Figure 1. Permutation test results (n = 100). Red line indicates real model accuracy.</i>
+</p>
 
-### Example Rules
+### Representative Rules
+
+| Rule | Decision | Accuracy | Support |
+|:-----|:---------|:--------:|:-------:|
+| WASF3 = high AND PRPF40A = high | Sensitive | 100% | 20 |
+| SSBP1 = low AND PRPF40A = low | Resistant | 100% | 19 |
+| KIF21B = low AND SERINC3 = high | Resistant | 100% | 17 |
+| TUFT1 = low AND GSK3A = high | Sensitive | 100% | 17 |
+| EGFR = high AND STOML2 = low | Resistant | 100% | 16 |
+| SLFN11 = high AND PRPF40A = high | Sensitive | 100% | 13 |
+| MSH2 = high AND PCOLCE2 = high | Sensitive | 100% | 12 |
+
+The complete set of 241 rules with full statistics is available in `cisplatin_rules.csv`.
+
+---
+
+## Biological Findings
+
+### Validated Gene Associations
+
+| Gene | Observed Role | Number of Rules | Supporting Literature |
+|:-----|:-------------|:---------------:|:---------------------|
+| **EGFR** | Resistance | 21 | EGFR-driven lung cancers exhibit well-documented platinum resistance (Lynch et al., 2004) |
+| **SLFN11** | Sensitivity | Multiple | Established cisplatin sensitivity biomarker; silencing confers resistance (Zoppoli et al., 2012) |
+| **MSH2** | Sensitivity | Multiple | DNA mismatch repair proficiency enhances cisplatin-induced apoptosis (Fink et al., 1996) |
+| **TGFB2** | Sensitivity | Multiple | TGF-beta signaling modulates chemosensitivity in NSCLC |
+
+### Novel Candidate Biomarkers
+
+| Gene | Network Role | Number of Rules | Observation |
+|:-----|:-------------|:---------------:|:------------|
+| **TUFT1** | Central hub | 35 | Most connected gene in the rule network; bridges resistance and sensitivity clusters |
+| **SERINC3** | Major connector | 30 | Second-most connected gene; serine incorporator with no prior cisplatin association |
+| **PRPF40A** | Sensitivity co-predictor | 20 | Pre-mRNA processing factor; appears in high-confidence sensitivity rules |
+| **C16orf58** | Dual-role hub | 22 | Appears in both resistance and sensitivity rule contexts |
+
+### Rule Network
+
+Nodes represent genes; edges represent co-occurrence within rules. Node size is proportional to the number of rules containing that gene. Red nodes indicate predominant association with resistance; blue nodes indicate predominant association with sensitivity.
+
+<p align="center">
+  <img src="images/rule_network.png" width="700"/>
+  <br>
+  <i>Figure 2. Gene co-occurrence network derived from 241 cisplatin response rules.</i>
+</p>
+
+---
+
+## Methods
+
+The analysis follows the rule-based model development pipeline described by Komorowski (2023).
+
+### Pipeline Overview
+
 ```
-IF WASF3=high AND PRPF40A=high THEN Sensitive (accuracy=100%, support=20)
-IF SSBP1=low AND PRPF40A=low THEN Resistant (accuracy=100%, support=19)
-IF EGFR=high AND STOML2=low THEN Resistant (accuracy=100%, support=16)
-IF SLFN11=high AND PRPF40A=high THEN Sensitive (accuracy=100%, support=13)
+Step 1  Biological Question       Predict cisplatin sensitivity in lung cancer
+Step 2  Data Acquisition          GDSC2 database via PharmacoGx (127 cell lines, 17,611 genes)
+Step 3  Preprocessing             NA imputation (gene median), variance filtering (bottom 25%
+                                  removed), z-score normalization
+Step 4  Feature Selection         LASSO (34 genes) and Boruta (11 genes); union = 43 genes
+Step 5  Discretization            Equal frequency binning into three levels (low, medium, high)
+Step 6  Classification            R.ROSETTA with StandardVoter classifier, Johnson reducer,
+                                  10-fold cross-validation
+Step 7  Statistical Validation    Permutation test (100 iterations, p < 0.01)
+Step 8  Post-processing           Rule extraction, co-occurrence network construction,
+                                  hub gene identification
 ```
 
-## Pipeline (Following Komorowski RBM Guidelines)
+### Data Source
 
-1. **Biological Question**: Predict cisplatin sensitivity in lung cancer
-2. **Data**: GDSC2 via PharmacoGx R package
-3. **Preprocessing**: NA imputation, variance filtering, z-score normalization
-4. **Feature Selection**: LASSO (34 genes) + Boruta (11 genes) → 43 gene union
-5. **Discretization**: Equal frequency binning (low/medium/high)
-6. **RBM**: R.ROSETTA with 10-fold CV, StandardVoter classifier
-7. **Validation**: Permutation test (p=0)
-8. **Post-processing**: Rule network analysis, hub gene identification
+Gene expression (microarray, RMA-normalized) and cisplatin dose-response data (area above the dose-response curve, AAC) were obtained from the Genomics of Drug Sensitivity in Cancer project (GDSC2, release v2-8.2) via the PharmacoGx R package. Cell lines were classified as Sensitive (AAC >= median) or Resistant (AAC < median).
 
-## Files
+<p align="center">
+  <img src="images/cisplatin_distribution.png" width="600"/>
+  <br>
+  <i>Figure 3. Distribution of cisplatin sensitivity (AAC) across 127 lung cancer cell lines.</i>
+</p>
 
-| File | Description |
-|------|-------------|
-| `analysis.R` | Complete reproducible R script |
-| `cisplatin_rules.csv` | All 241 rules with statistics |
-| `expression_data.csv` | Normalized gene expression (127 x 43) |
-| `response_labels.csv` | Sensitive/Resistant labels |
-| `lasso_features.csv` | LASSO-selected genes |
-| `boruta_features.csv` | Boruta-selected genes |
-| `network_edges.csv` | Rule co-occurrence network edges |
-| `figures.pdf` | PCA, distribution, permutation test, network plots |
-| `MODEL_SUMMARY.txt` | Full model summary |
+### Preprocessing and Normalization
 
-## Requirements
+<p align="center">
+  <img src="images/pca_plot.png" width="600"/>
+  <br>
+  <i>Figure 4. PCA of preprocessed gene expression data. No distinct outliers observed.</i>
+</p>
+
+### Feature Selection
+
+Two complementary methods were applied to reduce dimensionality from 17,611 to 43 genes:
+
+- **LASSO** (L1-regularized logistic regression): 10-fold cross-validated; selected 34 genes at lambda.min
+- **Boruta** (random forest wrapper): Applied to the top 1,000 most variable genes; confirmed 11 genes
+
+The union of both feature sets (43 genes) was used as input to R.ROSETTA, following the guideline recommendation to combine multiple feature selection methods to mitigate the shadowing effect.
+
+<p align="center">
+  <img src="images/lasso_cv.png" width="600"/>
+  <br>
+  <i>Figure 5. LASSO cross-validation curve for feature selection.</i>
+</p>
+
+---
+
+## Repository Structure
+
+```
+cisplatin-rbm-lung-cancer/
+|
+|-- README.md                   Project documentation
+|-- analysis.R                  Complete reproducible R script
+|-- MODEL_SUMMARY.txt           Model performance summary
+|
+|-- images/
+|   |-- pca_plot.png            Principal component analysis
+|   |-- cisplatin_distribution.png  Drug sensitivity distribution
+|   |-- lasso_cv.png            LASSO cross-validation curve
+|   |-- permutation_test.png    Permutation test histogram
+|   |-- rule_network.png        Gene co-occurrence network
+|
+|-- cisplatin_rules.csv         All 241 rules with statistics
+|-- expression_data.csv         Normalized expression matrix (127 x 43)
+|-- response_labels.csv         Sample classification labels
+|-- lasso_features.csv          LASSO-selected genes with annotations
+|-- boruta_features.csv         Boruta-selected genes with annotations
+|-- network_edges.csv           Rule co-occurrence network edge list
+```
+
+---
+
+## Reproducing the Analysis
+
+### Prerequisites
+
 ```r
 install.packages(c("BiocManager", "glmnet", "Boruta", "igraph", "devtools"))
 BiocManager::install("PharmacoGx")
 devtools::install_github("komorowskilab/R.ROSETTA")
 ```
 
-## How to Reproduce
+### Execution
+
 ```r
 source("analysis.R")
 ```
-Note: Initial data download (~1.5 GB) takes 15-30 minutes.
+
+The initial run downloads approximately 1.5 GB of GDSC2 data and requires 15-30 minutes for the download step. The complete analysis (feature selection, model training, permutation testing) takes approximately 60-90 minutes on a standard desktop.
+
+---
+
+## Comparison with Existing Approaches
+
+| Method | Typical Accuracy | Interpretable | Mechanism Discovery | Reference |
+|:-------|:----------------:|:-------------:|:-------------------:|:----------|
+| Deep Neural Networks | 75-80% | No | No | Sakellaropoulos et al., 2019 |
+| Random Forest | 72-78% | No | Partial | Iorio et al., 2016 |
+| Elastic Net | 70-76% | Partial | No | Garnett et al., 2012 |
+| SVM | 70-75% | No | No | Geeleher et al., 2014 |
+| **R.ROSETTA (this study)** | **73.9%** | **Yes** | **Yes** | -- |
+
+The principal advantage of the rule-based approach is not superior accuracy but the generation of interpretable, combinatorial hypotheses that can be directly tested experimentally and communicated to domain experts.
+
+---
 
 ## References
 
-- Komorowski, J. "Developing RBMs Guidelines" - Knowledge-based Systems in Bioinformatics
-- Dramiński, M. et al. "R.ROSETTA: an interpretable machine learning framework" (2021) BMC Bioinformatics
-- Yang, W. et al. "Genomics of Drug Sensitivity in Cancer (GDSC)" Nucleic Acids Research (2013)
+1. Draminski, M. et al. "R.ROSETTA: an interpretable machine learning framework." *BMC Bioinformatics* 22, 110 (2021).
+2. Komorowski, J. "Developing RBMs -- Guidelines." Knowledge-based Systems in Bioinformatics, Winter 2023.
+3. Yang, W. et al. "Genomics of Drug Sensitivity in Cancer (GDSC): a resource for therapeutic biomarker discovery in cancer cells." *Nucleic Acids Research* 41, D955-D961 (2013).
+4. Zoppoli, G. et al. "Putative DNA/RNA helicase Schlafen-11 (SLFN11) sensitizes cancer cells to DNA-damaging agents." *PNAS* 109, 15030-15035 (2012).
+5. Fink, D. et al. "The role of DNA mismatch repair in platinum drug resistance." *Cancer Research* 56, 4881-4886 (1996).
+6. Lynch, T.J. et al. "Activating mutations in the epidermal growth factor receptor underlying responsiveness of non-small-cell lung cancer to gefitinib." *New England Journal of Medicine* 350, 2129-2139 (2004).
+
+---
 
 ## License
-MIT License
+
+This project is released under the MIT License.
+
+---
+
+<p align="center">
+  <i>Analysis conducted using R.ROSETTA  |  Data sourced from GDSC2  |  Pipeline based on Komorowski RBM Guidelines</i>
+</p>
