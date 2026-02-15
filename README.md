@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="images/rule_network.png" width="700"/>
-</p>
-
 <h1 align="center">Interpretable Rule-Based Prediction of Cisplatin Response in Lung Cancer</h1>
 
 <p align="center">
@@ -10,7 +6,7 @@
   <img src="https://img.shields.io/badge/Data-GDSC2-2ecc71?style=flat-square"/>
   <img src="https://img.shields.io/badge/Accuracy-73.9%25-blue?style=flat-square"/>
   <img src="https://img.shields.io/badge/Permutation%20p--value-<%200.01-critical?style=flat-square"/>
-  <img src="https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square"/>
+  <img src="https://img.shields.io/badge/License-Apache%202.0-lightgrey?style=flat-square"/>
 </p>
 
 <p align="center">
@@ -46,12 +42,12 @@ The model achieves **73.9% classification accuracy** (permutation p-value < 0.01
 
 ### Statistical Validation
 
-The permutation test confirms the model is significantly better than random classification (mean shuffled accuracy = 51.7%).
+The permutation test confirms the model significantly outperforms random classification (mean shuffled accuracy = 51.7%).
 
 <p align="center">
   <img src="images/permutation_test.png" width="600"/>
   <br>
-  <i>Figure 1. Permutation test results (n = 100). Red line indicates real model accuracy.</i>
+  <i>Figure 1. Permutation test results (n = 100). Red line indicates real model accuracy (73.9%). Histogram shows accuracy distribution under random label permutation.</i>
 </p>
 
 ### Representative Rules
@@ -66,7 +62,7 @@ The permutation test confirms the model is significantly better than random clas
 | SLFN11 = high AND PRPF40A = high | Sensitive | 100% | 13 |
 | MSH2 = high AND PCOLCE2 = high | Sensitive | 100% | 12 |
 
-The complete set of 241 rules with full statistics is available in `cisplatin_rules.csv`.
+The complete set of 241 rules with full statistics is available in [`cisplatin_rules.csv`](cisplatin_rules.csv).
 
 ---
 
@@ -97,7 +93,7 @@ Nodes represent genes; edges represent co-occurrence within rules. Node size is 
 <p align="center">
   <img src="images/rule_network.png" width="700"/>
   <br>
-  <i>Figure 2. Gene co-occurrence network derived from 241 cisplatin response rules.</i>
+  <i>Figure 2. Gene co-occurrence network derived from 241 cisplatin response rules. TUFT1 (35 rules) and SERINC3 (30 rules) are the principal hub genes. EGFR clusters with resistance-associated genes (red), while SLFN11, MSH2, and PRPF40A associate with sensitivity (blue).</i>
 </p>
 
 ---
@@ -129,30 +125,33 @@ Gene expression (microarray, RMA-normalized) and cisplatin dose-response data (a
 <p align="center">
   <img src="images/cisplatin_distribution.png" width="600"/>
   <br>
-  <i>Figure 3. Distribution of cisplatin sensitivity (AAC) across 127 lung cancer cell lines.</i>
+  <i>Figure 3. Distribution of cisplatin sensitivity (AAC) across 127 lung cancer cell lines. Dashed red line indicates the median threshold used for binary classification.</i>
 </p>
 
 ### Preprocessing and Normalization
 
+Starting from 17,611 genes across 127 samples, the preprocessing pipeline removed genes with missing values exceeding 20% of samples, imputed remaining missing values using per-gene median, removed the bottom 25% of genes by variance, and applied z-score normalization. Principal component analysis confirmed the absence of extreme outliers.
+
 <p align="center">
   <img src="images/pca_plot.png" width="600"/>
   <br>
-  <i>Figure 4. PCA of preprocessed gene expression data. No distinct outliers observed.</i>
+  <i>Figure 4. PCA of preprocessed gene expression data (13,208 genes). PC1 captures 12.3% and PC2 captures 4.7% of total variance. No distinct outliers were identified for removal.</i>
 </p>
 
 ### Feature Selection
 
-Two complementary methods were applied to reduce dimensionality from 17,611 to 43 genes:
+Two complementary methods were applied to reduce dimensionality from 13,208 to 43 genes:
 
-- **LASSO** (L1-regularized logistic regression): 10-fold cross-validated; selected 34 genes at lambda.min
-- **Boruta** (random forest wrapper): Applied to the top 1,000 most variable genes; confirmed 11 genes
+**LASSO** (L1-regularized logistic regression): 10-fold cross-validated at lambda.min; selected 34 genes including EGFR, SLFN11, and SSBP1.
 
-The union of both feature sets (43 genes) was used as input to R.ROSETTA, following the guideline recommendation to combine multiple feature selection methods to mitigate the shadowing effect.
+**Boruta** (random forest wrapper): Applied to the top 1,000 most variable genes with 200 iterations; confirmed 11 genes including MSH2, TGFB2, and GSK3A.
+
+The union of both feature sets (43 genes) was used as input to R.ROSETTA, following the guideline recommendation to combine multiple feature selection approaches to mitigate the shadowing effect where dominant features suppress weaker but biologically relevant signals.
 
 <p align="center">
   <img src="images/lasso_cv.png" width="600"/>
   <br>
-  <i>Figure 5. LASSO cross-validation curve for feature selection.</i>
+  <i>Figure 5. LASSO cross-validation curve. Optimal regularization at lambda.min selected 34 non-zero coefficients.</i>
 </p>
 
 ---
@@ -163,6 +162,7 @@ The union of both feature sets (43 genes) was used as input to R.ROSETTA, follow
 cisplatin-rbm-lung-cancer/
 |
 |-- README.md                   Project documentation
+|-- LICENSE                     Apache License 2.0
 |-- analysis.R                  Complete reproducible R script
 |-- MODEL_SUMMARY.txt           Model performance summary
 |
@@ -199,7 +199,7 @@ devtools::install_github("komorowskilab/R.ROSETTA")
 source("analysis.R")
 ```
 
-The initial run downloads approximately 1.5 GB of GDSC2 data and requires 15-30 minutes for the download step. The complete analysis (feature selection, model training, permutation testing) takes approximately 60-90 minutes on a standard desktop.
+The initial run downloads approximately 1.5 GB of GDSC2 data and requires 15-30 minutes for the download step. The complete analysis including feature selection, model training, and permutation testing takes approximately 60-90 minutes on a standard desktop machine.
 
 ---
 
@@ -213,7 +213,7 @@ The initial run downloads approximately 1.5 GB of GDSC2 data and requires 15-30 
 | SVM | 70-75% | No | No | Geeleher et al., 2014 |
 | **R.ROSETTA (this study)** | **73.9%** | **Yes** | **Yes** | -- |
 
-The principal advantage of the rule-based approach is not superior accuracy but the generation of interpretable, combinatorial hypotheses that can be directly tested experimentally and communicated to domain experts.
+The principal advantage of the rule-based approach is not superior accuracy but the generation of interpretable, combinatorial hypotheses that can be directly tested experimentally and communicated to domain experts without requiring computational expertise.
 
 ---
 
@@ -225,12 +225,14 @@ The principal advantage of the rule-based approach is not superior accuracy but 
 4. Zoppoli, G. et al. "Putative DNA/RNA helicase Schlafen-11 (SLFN11) sensitizes cancer cells to DNA-damaging agents." *PNAS* 109, 15030-15035 (2012).
 5. Fink, D. et al. "The role of DNA mismatch repair in platinum drug resistance." *Cancer Research* 56, 4881-4886 (1996).
 6. Lynch, T.J. et al. "Activating mutations in the epidermal growth factor receptor underlying responsiveness of non-small-cell lung cancer to gefitinib." *New England Journal of Medicine* 350, 2129-2139 (2004).
+7. Sakellaropoulos, T. et al. "A deep learning framework for predicting response to therapy in cancer." *Cell Reports* 29, 3367-3373 (2019).
+8. Iorio, F. et al. "A landscape of pharmacogenomic interactions in cancer." *Cell* 166, 740-754 (2016).
 
 ---
 
 ## License
 
-This project is released under the MIT License.
+This project is licensed under the Apache License 2.0. See [`LICENSE`](LICENSE) for full terms.
 
 ---
 
