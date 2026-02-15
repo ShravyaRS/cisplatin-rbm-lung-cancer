@@ -1,0 +1,33 @@
+================================================================
+Interpretable Rule-Based Prediction of Cisplatin Response
+in Lung Cancer using R.ROSETTA
+================================================================
+
+DATA SOURCE: GDSC2 (Genomics of Drug Sensitivity in Cancer)
+TISSUE: Lung Cancer
+DRUG: Cisplatin
+SAMPLES: 127 (Sensitive=64, Resistant=63)
+FEATURES: 43 genes
+FEATURE SELECTION: LASSO (34 genes) + Boruta (11 genes) = 43 union
+
+MODEL PERFORMANCE:
+  Accuracy Mean: 0.739231 
+  Accuracy Median: 0.734615 
+  Accuracy SD: 0.082247 
+  Accuracy Range: 0.615385 - 0.923077 
+  Permutation p-value: 0 (n=100)
+
+TOTAL RULES: 241 
+
+TOP 10 HUB GENES:
+
+   TUFT1  SERINC3 C16orf58     EGFR   KIF21B    SSBP1 
+      35       30       22       21       21       21 
+   INTS6  PRPF40A  PCOLCE2     SGCE 
+      20       20       19       19 
+
+KEY FINDINGS:
+- EGFR appears in 21 resistance rules (validated target)
+- SLFN11 appears in sensitivity rules (known cisplatin biomarker)
+- MSH2 (DNA repair) in sensitivity rules (biologically plausible)
+- TUFT1 is the top hub gene (35 rules) - potential novel biomarker
